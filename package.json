@@ -1,0 +1,21 @@
+{
+  "name": "manifest-lab-agentic-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Open Agentic Web MVP 0.2 conformance workbench, peer-boundary simulator, and agentified web runtime.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.6"
+  }
+}

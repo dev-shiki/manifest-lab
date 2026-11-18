@@ -1,0 +1,35 @@
+{
+  "brand": "Civic Directory Peer Fixture",
+  "networks": [
+    {
+      "name": "civic_directory",
+      "front_man": "directory_front",
+      "hocon": "./civic_directory.network.json",
+      "description": "Peer fixture publishing regional Open Agentic Web site metadata for cross-origin linking verification.",
+      "tags": ["peer-fixture", "mvp-0.2"]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.otari.ai/api/v1",
+    "mock": false
+  },
+  "allowed_peers": [],
+  "peer_policy": {
+    "mode": "closed",
+    "deny_origins": []
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "civic_directory",
+    "front_man": "directory_front",
+    "available": false,
+    "reason": "Static peer fixture."
+  },
+  "deployment": {
+    "mode": "static",
+    "self_contained_runtime": true,
+    "browser_mock": false,
+    "direct_byok": true,
+    "public_mcp_facade": false
+  }
+}

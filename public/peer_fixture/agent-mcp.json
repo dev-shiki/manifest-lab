@@ -1,0 +1,7 @@
+{
+  "protocol": "nsdeploy-agent-mcp/v1",
+  "network": "civic_directory",
+  "front_man": "directory_front",
+  "available": false,
+  "reason": "Static peer fixture."
+}

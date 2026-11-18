@@ -1,0 +1,7 @@
+{
+  "protocol": "nsdeploy-agent-mcp/v1",
+  "network": "manifest_lab",
+  "front_man": "manifest_coordinator",
+  "available": false,
+  "reason": "Static bundle; public MCP facade requires an application server."
+}

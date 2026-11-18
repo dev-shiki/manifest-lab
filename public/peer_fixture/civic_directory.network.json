@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "description": "Civic Directory peer fixture answering conformance dataset queries without site actions."
+  },
+  "max_steps": 6,
+  "max_execution_seconds": 60,
+  "tools": [
+    {
+      "name": "directory_front",
+      "function": {
+        "description": "Report indexed Open Agentic Web public reference sites and specification checks.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "Question from caller site."
+            }
+          },
+          "required": ["request"]
+        }
+      },
+      "instructions": "You are a read-only peer directory running inside the caller browser. Never ask for credentials or API keys. State what public reference datasets are indexed.",
+      "tools": ["dataset_catalog"]
+    },
+    {
+      "name": "dataset_catalog",
+      "function": {
+        "description": "List reference Open Agentic Web site bundles and conformance profiles.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string"
+            }
+          },
+          "required": ["request"]
+        }
+      },
+      "instructions": "Return concise facts about MVP Profile 0.2 reference bundles.",
+      "tools": []
+    }
+  ]
+}

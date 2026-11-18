@@ -1,0 +1,5 @@
+{
+  "brand": "ManifestLab Action Bridge",
+  "origin_policy": "same-origin-actions-only",
+  "manifest": "../agent-manifest.json"
+}

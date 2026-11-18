@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ManifestLab: Open Agentic Web MVP 0.2 Conformance Workbench</title>
+    <script type="module" crossorigin src="./assets/index-Q-PCJYWP.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DgPVsGno.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#workbench">Skip to workbench</a>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand-block">
+          <h1 class="site-title">ManifestLab</h1>
+          <p class="site-subtitle">
+            Open Agentic Web MVP 0.2 conformance auditor, browser agent runtime, and peer-boundary verifier.
+          </p>
+        </div>
+
+        <nav class="site-nav" aria-label="Primary">
+          <a href="#workbench">Audit Workbench</a>
+          <a href="#agent-console">Agent Runtime</a>
+          <a href="#boundary-trace">Peer &amp; Trace</a>
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-secondary"
+            aria-pressed="false"
+          >
+            Switch to Dark Theme
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="page-main">
+      <section id="workbench" class="panel" aria-labelledby="workbench-heading">
+        <div class="panel-header">
+          <div>
+            <h2 id="workbench-heading">1. Bundle Loader and 16-Rule Conformance Auditor</h2>
+            <p class="panel-lead">
+              Inspect published <code>agent-manifest.json</code>, resolved <code>.network.json</code> (or HOCON subset), and <code>links.json</code> files locally in your browser.
+            </p>
+          </div>
+          <div class="toolbar-row" role="group" aria-label="Preset bundles">
+            <button type="button" class="btn btn-secondary" data-preset="conforming">
+              Load Conforming Self
+            </button>
+            <button type="button" class="btn btn-secondary" data-preset="leaky_sly_data">
+              Load Leaky sly_data
+            </button>
+            <button type="button" class="btn btn-secondary" data-preset="unsafe_peer">
+              Load Unsafe Peer
+            </button>
+          </div>
+        </div>
+
+        <div class="remote-fetch-bar">
+          <div class="field-group field-grow">
+            <label for="remote-manifest-url">Fetch CORS-enabled <code>agent-manifest.json</code> URL (optional)</label>
+            <input
+              id="remote-manifest-url"
+              type="url"
+              placeholder="https://example.org/agent-manifest.json or ./agent-manifest.json"
+            />
+          </div>
+          <button type="button" id="fetch-remote-btn" class="btn btn-teal">
+            Fetch Remote Bundle
+          </button>
+          <div class="field-group">
+            <label for="local-file-input">Or open local JSON/HOCON file</label>
+            <input id="local-file-input" type="file" accept=".json,.hocon,.txt" />
+          </div>
+        </div>
+
+        <div id="loader-feedback" class="status-banner" role="status" aria-live="polite" hidden></div>
+
+        <div class="workbench-grid">
+          <div class="editor-column">
+            <div class="field-group">
+              <label for="manifest-editor">agent-manifest.json</label>
+              <textarea id="manifest-editor" rows="10" spellcheck="false"></textarea>
+            </div>
+            <div class="field-group">
+              <label for="network-editor">Resolved .network.json or .hocon</label>
+              <textarea id="network-editor" rows="12" spellcheck="false"></textarea>
+            </div>
+            <div class="field-group">
+              <label for="links-editor">links.json</label>
+              <textarea id="links-editor" rows="5" spellcheck="false"></textarea>
+            </div>
+            <div class="action-row">
+              <button type="button" id="run-audit-btn" class="btn btn-primary">
+                Run 16-Rule Audit
+              </button>
+              <button type="button" id="export-report-btn" class="btn btn-secondary" disabled>
+                Export Audit JSON
+              </button>
+              <button type="button" id="reset-workspace-btn" class="btn btn-danger">
+                Reset Workspace
+              </button>
+            </div>
+          </div>
+
+          <div class="report-column" aria-live="polite">
+            <div class="report-head">
+              <h3>Conformance Findings</h3>
+              <span id="state-version-label" class="meta-label">State v1</span>
+            </div>
+
+            <div id="audit-empty-state" class="state-box">
+              No audit report generated yet. Select a preset or edit the JSON fields, then choose Run 16-Rule Audit.
+            </div>
+            <div id="audit-loading-state" class="state-box" hidden>
+              Parsing bundle artifacts and running 16 MVP Profile 0.2 rules...
+            </div>
+            <div id="audit-error-state" class="state-box state-error" role="alert" hidden></div>
+
+            <div id="audit-results" hidden>
+              <div id="audit-summary" class="summary-strip"></div>
+              <div class="filter-row" role="group" aria-label="Filter findings">
+                <button type="button" class="btn btn-secondary filter-btn is-active" data-filter="all">
+                  Show All
+                </button>
+                <button type="button" class="btn btn-secondary filter-btn" data-filter="fail">
+                  Failures Only
+                </button>
+                <button type="button" class="btn btn-secondary filter-btn" data-filter="warn">
+                  Warnings Only
+                </button>
+              </div>
+              <ul id="findings-list" class="findings-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="agent-console" class="panel" aria-labelledby="agent-heading">
+        <div class="panel-header">
+          <div>
+            <h2 id="agent-heading">2. Browser Agent Runtime and BYOK Router</h2>
+            <p class="panel-lead">
+              Runs <code>manifest_lab.network.json</code> in the browser. Use the zero-cost Offline Deterministic Router or supply your own OpenAI-compatible, Otari, or local Ollama key in <code>localStorage</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="runtime-grid">
+          <div class="byok-box">
+            <h3>Inference Router Settings</h3>
+            <div class="field-group">
+              <label for="router-mode-select">Active Execution Mode</label>
+              <select id="router-mode-select">
+                <option value="deterministic">Offline Deterministic Router ($0 local, no API key)</option>
+                <option value="byok">Visitor BYOK Router (OpenAI-compatible / Otari / Ollama)</option>
+              </select>
+            </div>
+
+            <div id="byok-fields" class="byok-fields" hidden>
+              <div class="field-group">
+                <label for="byok-base-url">Router Base URL</label>
+                <input
+                  id="byok-base-url"
+                  type="url"
+                  value="https://api.otari.ai/api/v1"
+                  placeholder="https://api.otari.ai/api/v1"
+                />
+              </div>
+              <div class="field-group">
+                <label for="byok-model-name">Model Identifier</label>
+                <input
+                  id="byok-model-name"
+                  type="text"
+                  value="alibaba/qwen3.8-flash"
+                  placeholder="alibaba/qwen3.8-flash"
+                />
+              </div>
+              <div class="field-group">
+                <label for="byok-api-key">API Key (stored only in origin localStorage)</label>
+                <input
+                  id="byok-api-key"
+                  type="password"
+                  autocomplete="off"
+                  placeholder="Optional for localhost Ollama; required for remote routers"
+                />
+              </div>
+              <div class="action-row">
+                <button type="button" id="save-byok-btn" class="btn btn-teal">
+                  Save BYOK Profile
+                </button>
+                <button type="button" id="delete-byok-btn" class="btn btn-secondary">
+                  Delete Stored Key
+                </button>
+              </div>
+            </div>
+            <p id="byok-status-note" class="meta-label">
+              Active: Offline Deterministic Router. Zero external network calls.
+            </p>
+          </div>
+
+          <div class="chat-box">
+            <h3>Run Front Agent (<code>manifest_coordinator</code>)</h3>
+            <div class="sample-prompts" role="group" aria-label="Sample prompts">
+              <button
+                type="button"
+                class="btn btn-secondary sample-prompt-btn"
+                data-prompt="Audit the currently loaded bundle for MVP 0.2 conformance."
+              >
+                Prompt: Audit current bundle
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary sample-prompt-btn"
+                data-prompt="Load the leaky sly_data preset and check what fails."
+              >
+                Prompt: Inspect leaky preset
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary sample-prompt-btn"
+                data-prompt="Simulate a peer hop to civic_directory."
+              >
+                Prompt: Test peer hop
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary sample-prompt-btn"
+                data-prompt="Clear the workspace."
+              >
+                Prompt: Reset workspace
+              </button>
+            </div>
+
+            <form id="agent-chat-form" class="chat-form">
+              <div class="field-group field-grow">
+                <label for="agent-prompt-input">Message to <code>manifest_coordinator</code></label>
+                <input
+                  id="agent-prompt-input"
+                  type="text"
+                  placeholder="Ask the agent to audit a bundle, test peer isolation, or reset the workspace"
+                  required
+                />
+              </div>
+              <button type="submit" id="send-agent-btn" class="btn btn-primary">
+                Run Agent Turn
+              </button>
+            </form>
+
+            <div id="agent-empty-state" class="state-box">
+              No agent turn executed yet. Pick a sample prompt or submit a custom request above.
+            </div>
+            <div id="agent-loading-state" class="state-box" hidden>
+              Running manifest_coordinator and dispatching registered website_* tools...
+            </div>
+            <div id="agent-error-state" class="state-box state-error" role="alert" hidden></div>
+            <div id="agent-output-box" class="agent-output" hidden aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="boundary-trace" class="panel" aria-labelledby="boundary-heading">
+        <div class="panel-header">
+          <div>
+            <h2 id="boundary-heading">3. Two-Origin Peer Boundary Simulator and Execution Trace</h2>
+            <p class="panel-lead">
+              Demonstrates MVP Profile 0.2 Section 3.2 and Section 5 checks: explicit consent before contact, <code>allowed_peers</code> enforcement, <code>sly_data</code> deny-by-default stripping, and BYOK credential non-disclosure.
+            </p>
+          </div>
+        </div>
+
+        <div class="boundary-grid">
+          <div class="peer-box">
+            <div class="field-group">
+              <label for="peer-url-input">Target Peer Network URL</label>
+              <input
+                id="peer-url-input"
+                type="url"
+                value="./peer_fixture/civic_directory"
+              />
+            </div>
+            <div class="field-group">
+              <label for="peer-request-input">Delegated Request (first 140 chars shown in consent dialog)</label>
+              <input
+                id="peer-request-input"
+                type="text"
+                value="Which public conformance datasets and reference manifests do you index?"
+              />
+            </div>
+            <div class="action-row">
+              <button type="button" id="run-peer-hop-btn" class="btn btn-teal">
+                Simulate Peer Hop
+              </button>
+            </div>
+
+            <div id="peer-empty-state" class="state-box">
+              No peer hop simulated yet. Run Simulate Peer Hop to inspect consent gating and sly_data stripping.
+            </div>
+            <div id="peer-loading-state" class="state-box" hidden>
+              Validating peer_policy and awaiting visitor consent...
+            </div>
+            <div id="peer-error-state" class="state-box state-error" role="alert" hidden></div>
+            <div id="peer-result-box" class="agent-output" hidden aria-live="polite"></div>
+          </div>
+
+          <div class="trace-box">
+            <h3>Observable Execution Trace</h3>
+            <div id="trace-empty-state" class="state-box">
+              Trace is empty. Tool calls, consent prompts, and peer checks will appear here.
+            </div>
+            <ol id="trace-list" class="trace-list" hidden></ol>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>
+          ManifestLab Open Agentic Web Workbench. Published discovery artifacts:
+          <a href="./agent-manifest.json">agent-manifest.json</a>,
+          <a href="./manifest_lab.network.json">manifest_lab.network.json</a>,
+          <a href="./links.json">links.json</a>,
+          <a href="./agent-mcp.json">agent-mcp.json</a>.
+        </p>
+      </div>
+    </footer>
+
+    <div
+      id="modal-backdrop"
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      hidden
+    >
+      <div class="modal-card">
+        <h2 id="modal-title">Confirmation Required</h2>
+        <p id="modal-body"></p>
+        <dl id="modal-details" class="modal-details"></dl>
+        <div class="action-row">
+          <button type="button" id="modal-approve-btn" class="btn btn-primary">
+            Approve Action
+          </button>
+          <button type="button" id="modal-cancel-btn" class="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
